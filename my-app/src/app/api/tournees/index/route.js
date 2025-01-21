@@ -1,0 +1,49 @@
+// src/app/api/tournees/index.js
+import { NextResponse } from 'next/server';
+import db from '@/lib/db';
+
+export async function GET() {
+  try {
+    const { rows } = await db.query('SELECT id_tournee, jour_preparation, jour_livraison FROM Tournee');
+    if (rows.length === 0) {
+      return NextResponse.json({ error: 'Aucune tournée trouvée.' }, { status: 404 });
+    }
+    const tourneeDates = rows.map(row => ({
+      id_tournee: row.id_tournee,
+      jour_preparation: row.jour_preparation,
+      jour_livraison: row.jour_livraison,
+    }));
+
+    return NextResponse.json(tourneeDates, { status: 200 });
+  } catch (error) {
+    console.error('Erreur lors de la récupération des dates de tournées :', error);
+    return NextResponse.json({ error: 'Erreur serveur.' }, { status: 500 });
+  }
+}
+
+export async function POST(req) {
+  const { jour_preparation, jour_livraison } = await req.json();
+
+  if (!jour_preparation || !jour_livraison) {
+    return NextResponse.json({ error: 'Les champs jour_preparation et jour_livraison sont requis.' }, { status: 400 });
+  }
+
+  if (new Date(jour_preparation) >= new Date(jour_livraison)) {
+    return NextResponse.json({
+      error: 'La date de préparation doit être antérieure à la date de livraison.',
+    }, { status: 400 });
+  }
+
+  try {
+    const { rows } = await db.query(
+      'INSERT INTO Tournee (jour_preparation, jour_livraison) VALUES ($1, $2) RETURNING *',
+      [jour_preparation, jour_livraison]
+    );
+    return NextResponse.json(rows[0], { status: 201 });
+  } catch (error) {
+    console.error('Erreur lors de la création de la tournée :', error);
+    return NextResponse.json({ error: 'Erreur serveur.' }, { status: 500 });
+  }
+}
+
+export const runtime = 'nodejs'; // Assurez-vous que l'environnement Node.js est utilisé pour accéder à la base de données.
