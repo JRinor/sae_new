@@ -2,20 +2,77 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Variables de couleur pour le thème */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #ffffff; /* Couleur de fond par défaut */
+  --foreground: #171717; /* Couleur principale pour le texte */
+  --hover-color: #68D391; /* Vert clair pour hover */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Réinitialisation globale */
+html, body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  height: 100%; /* S'assurer que l'écran prend tout l'espace */
+  overflow-x: hidden; /* Empêche le défilement horizontal */
 }
 
+/* Style du corps de la page */
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Playfair Display', serif; /* Style élégant */
+  background-color: var(--background);
+  color: var(--foreground); /* Couleur par défaut du texte */
+}
+
+/* En-têtes globaux */
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  padding: 0;
+}
+
+/* Liens généraux */
+a {
+  text-decoration: none;
+  color: white;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: var(--hover-color); /* Effet hover */
+}
+
+/* Navigation */
+nav {
+  display: flex;
+  gap: 10px;
+}
+
+/* Texte avec ombre pour améliorer la lisibilité */
+.text-shadow {
+  text-shadow: 0px 4px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* Images de fond */
+.bg-cover {
+  background-size: cover;
+  background-position: center;
+}
+
+/* Classes utilitaires */
+.drop-shadow-lg {
+  filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.4));
+}
+
+.drop-shadow-md {
+  filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+/* Suppression des barres blanches aux marges */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
