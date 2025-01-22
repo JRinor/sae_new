@@ -1,10 +1,8 @@
-// src/app/api/tournees/[id]/route.js
 import { NextResponse } from 'next/server';
-import db from '@/lib/db'; // Importation correcte de db avec export par défaut
+import db from '@/lib/db';
 
-// Récupérer une tournée par ID (GET)
-export async function GET(req, { params }) {
-  const { id } = await params; // Attendre la résolution de params
+export async function GET(req) {
+  const id = req.nextUrl.pathname.split('/').pop();
 
   if (!id || isNaN(id)) {
     return NextResponse.json({ error: "L'ID de la tournée est invalide." }, { status: 400 });
@@ -24,13 +22,18 @@ export async function GET(req, { params }) {
   }
 }
 
-// Mettre à jour une tournée partiellement (PATCH)
+
 export async function PATCH(req, { params }) {
-  const { id } = await params; // Attendre la résolution de params
+  const { id } = params;
   const body = await req.json();
   const { jour_preparation, jour_livraison, statut_tournee } = body;
 
-  // Validation des données entrantes
+  if (jour_preparation && jour_livraison && new Date(jour_preparation) >= new Date(jour_livraison)) {
+    return NextResponse.json({
+      error: 'La date de préparation doit être antérieure à la date de livraison.',
+    }, { status: 400 });
+  }
+
   if (!jour_preparation && !jour_livraison && !statut_tournee) {
     return NextResponse.json({ error: 'Aucune donnée à mettre à jour.' }, { status: 400 });
   }
@@ -55,13 +58,17 @@ export async function PATCH(req, { params }) {
   }
 }
 
-// Mettre à jour une tournée entièrement (PUT)
 export async function PUT(req, { params }) {
-  const { id } = await params; // Attendre la résolution de params
+  const { id } = params;
   const body = await req.json();
   const { jour_preparation, jour_livraison, statut_tournee } = body;
 
-  // Validation des données entrantes
+  if (jour_preparation && jour_livraison && new Date(jour_preparation) >= new Date(jour_livraison)) {
+    return NextResponse.json({
+      error: 'La date de préparation doit être antérieure à la date de livraison.',
+    }, { status: 400 });
+  }
+
   if (!jour_preparation || !jour_livraison || !statut_tournee) {
     return NextResponse.json({ error: 'Tous les champs sont requis.' }, { status: 400 });
   }
@@ -84,20 +91,21 @@ export async function PUT(req, { params }) {
   }
 }
 
-// Supprimer une tournée (DELETE)
 export async function DELETE(req, { params }) {
-  const { id } = await params; // Attendre la résolution de params
+  const { id } = params;
 
   if (!id || isNaN(id)) {
     return NextResponse.json({ error: "L'ID de la tournée est invalide." }, { status: 400 });
   }
 
   try {
-    const { rowCount } = await db.query('DELETE FROM Tournee WHERE id_tournee = $1', [id]);
+    const { rows } = await db.query('SELECT * FROM Tournee WHERE id_tournee = $1', [id]);
 
-    if (rowCount === 0) {
+    if (rows.length === 0) {
       return NextResponse.json({ error: 'Tournée non trouvée.' }, { status: 404 });
     }
+
+    await db.query('DELETE FROM Tournee WHERE id_tournee = $1', [id]);
 
     return NextResponse.json({ message: 'Tournée supprimée avec succès.' }, { status: 200 });
   } catch (error) {
@@ -106,12 +114,16 @@ export async function DELETE(req, { params }) {
   }
 }
 
-// Ajouter une nouvelle tournée (POST)
 export async function POST(req) {
   const body = await req.json();
   const { jour_preparation, jour_livraison, statut_tournee } = body;
 
-  // Validation des données entrantes
+  if (new Date(jour_preparation) >= new Date(jour_livraison)) {
+    return NextResponse.json({
+      error: 'La date de préparation doit être antérieure à la date de livraison.',
+    }, { status: 400 });
+  }
+
   if (!jour_preparation || !jour_livraison || !statut_tournee) {
     return NextResponse.json({ error: 'Tous les champs sont requis.' }, { status: 400 });
   }
@@ -122,14 +134,13 @@ export async function POST(req) {
       VALUES ($1, $2, $3) RETURNING *`;
     const { rows } = await db.query(query, [jour_preparation, jour_livraison, statut_tournee]);
 
-    return NextResponse.json(rows[0], { status: 201 }); // Retourne la tournée ajoutée
+    return NextResponse.json(rows[0], { status: 201 });
   } catch (error) {
     console.error('Error during the POST request:', error);
     return NextResponse.json({ error: 'Erreur serveur.' }, { status: 500 });
   }
 }
 
-// Vérification des méthodes autorisées (OPTIONS)
 export async function OPTIONS() {
   return NextResponse.json(
     { message: 'Méthodes autorisées : GET, POST, PATCH, PUT, DELETE' },

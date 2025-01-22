@@ -1,12 +1,15 @@
+@import 'leaflet/dist/leaflet.css';
+@import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* Variables de couleur pour le thème */
 :root {
-  --background: #ffffff; /* Couleur de fond par défaut */
-  --foreground: #171717; /* Couleur principale pour le texte */
-  --hover-color: #68D391; /* Vert clair pour hover */
+  --background: #ffffff;
+  --foreground: #171717;
+  --hover-color: #68D391;
 }
 
 /* Réinitialisation globale */
@@ -14,15 +17,15 @@ html, body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  height: 100%; /* S'assurer que l'écran prend tout l'espace */
-  overflow-x: hidden; /* Empêche le défilement horizontal */
+  height: 100%;
+  overflow-x: hidden;
 }
 
 /* Style du corps de la page */
 body {
-  font-family: 'Playfair Display', serif; /* Style élégant */
+  font-family: 'Playfair Display', serif;
   background-color: var(--background);
-  color: var(--foreground); /* Couleur par défaut du texte */
+  color: var(--foreground);
 }
 
 /* En-têtes globaux */
@@ -41,7 +44,7 @@ a {
 }
 
 a:hover {
-  color: var(--hover-color); /* Effet hover */
+  color: var(--hover-color);
 }
 
 /* Navigation */
@@ -50,18 +53,16 @@ nav {
   gap: 10px;
 }
 
-/* Texte avec ombre pour améliorer la lisibilité */
+/* Classes utilitaires */
 .text-shadow {
   text-shadow: 0px 4px 6px rgba(0, 0, 0, 0.4);
 }
 
-/* Images de fond */
 .bg-cover {
   background-size: cover;
   background-position: center;
 }
 
-/* Classes utilitaires */
 .drop-shadow-lg {
   filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.4));
 }
@@ -70,7 +71,13 @@ nav {
   filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.3));
 }
 
-/* Suppression des barres blanches aux marges */
+/* Configuration Leaflet */
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+}
+
+/* Reset global */
 * {
   margin: 0;
   padding: 0;

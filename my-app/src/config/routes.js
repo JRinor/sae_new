@@ -1,8 +1,9 @@
-// src/config/routes.js
 const routes = [
   { path: '/', name: 'Accueil' },
-  { name: 'Se connecter', path: '/login' },
-  { name: 'Mon Espace', path: '/mon-espace' },
+  { path: '/tournees', name: 'Tournées' },
+  { path: '/login', name: 'Se connecter' },
+  { path: '/mon-espace', name: 'Mon Espace' },
+  { path: '/register', name: 'Inscription' },
   // Ajoutez d'autres routes selon les besoins
 ];
 
