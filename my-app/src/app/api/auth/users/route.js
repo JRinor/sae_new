@@ -1,4 +1,4 @@
-import db from '@/lib/db';  // Utilisation de db comme pool
+import db from '@/lib/db'; 
 import jwt from 'jsonwebtoken';
 
 export async function GET(req) {

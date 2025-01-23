@@ -1,12 +1,14 @@
-import './globals.css'; // Assure-toi d'importer le CSS global
-import Header from '@/components/Header'; // Importer le Header
+import './globals.css';
+import Header from '@/components/Header';
 
 export default function Layout({ children }) {
   return (
     <html lang="fr">
       <body>
-        <Header /> {/* Ajouter le Header */}
-        {children} {/* Le contenu de la page */}
+        <Header /> {/* Ensure Header is used */}
+        <main className="pt-20">
+          {children}
+        </main>
       </body>
     </html>
   );

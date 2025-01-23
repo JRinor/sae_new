@@ -1,6 +1,76 @@
 // app/api/tournees/[id]/calendrier/route.js
 import db from '@/lib/db';
 
+/**
+ * @swagger
+ * /api/tournees/{id}/calendrier:
+ *   get:
+ *     summary: Récupérer le calendrier d'une tournée par ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Détails du calendrier de la tournée
+ *       400:
+ *         description: ID invalide
+ *       404:
+ *         description: Tournée non trouvée
+ *       500:
+ *         description: Erreur serveur
+ *   patch:
+ *     summary: Mettre à jour le calendrier d'une tournée par ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               jour_preparation:
+ *                 type: string
+ *                 format: date
+ *               jour_livraison:
+ *                 type: string
+ *                 format: date
+ *               statut_tournee:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Calendrier de la tournée mis à jour
+ *       400:
+ *         description: Champs requis manquants ou invalides
+ *       404:
+ *         description: Tournée non trouvée
+ *       500:
+ *         description: Erreur serveur
+ *   delete:
+ *     summary: Supprimer le calendrier d'une tournée par ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Calendrier de la tournée supprimé
+ *       400:
+ *         description: ID invalide
+ *       404:
+ *         description: Tournée non trouvée
+ *       500:
+ *         description: Erreur serveur
+ */
 export async function handler(req, res) {
   const { id } = req.query;
 

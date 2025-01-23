@@ -1,5 +1,38 @@
 // src/app/api/commandes/route.js
-import pool from '@/lib/db'; // Changement d'importation de db
+import pool from '@/lib/db';
+
+/**
+ * @swagger
+ * /api/commandes:
+ *   post:
+ *     tags: [Commandes]
+ *     summary: Créer une nouvelle commande
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id_abonnement:
+ *                 type: integer
+ *               id_point_de_depot:
+ *                 type: integer
+ *               quantite:
+ *                 type: integer
+ *               date_livraison:
+ *                 type: string
+ *                 format: date
+ *               statut:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Commande créée
+ *       400:
+ *         description: Statut invalide
+ *       500:
+ *         description: Erreur serveur
+ */
 
 export async function POST(req) {
   const { id_abonnement, id_point_de_depot, quantite, date_livraison, statut } = await req.json();

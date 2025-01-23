@@ -5,81 +5,96 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Variables de couleur pour le thème */
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --hover-color: #68D391;
+@layer base {
+  html, body {
+    @apply h-full m-0 p-0 overflow-x-hidden bg-gray-900 text-white;
+  }
+
+  body {
+    font-family: 'Playfair Display', serif;
+  }
 }
 
-/* Réinitialisation globale */
-html, body {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  height: 100%;
-  overflow-x: hidden;
+@layer components {
+  .btn-tournee {
+    @apply px-8 py-3 rounded-lg shadow-lg 
+    transition-all duration-300
+    hover:scale-105 hover:shadow-lg
+    active:scale-95 font-medium text-white;
+  }
+
+  .loading-spinner {
+    @apply w-8 h-8 border-4 border-purple-500 border-t-transparent
+    rounded-full animate-spin;
+  }
+
+  .card-glass {
+    @apply bg-gray-800/50 backdrop-blur-sm shadow-lg rounded-xl;
+  }
+
+  .modal-overlay {
+    @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
+  }
+
+  .modal-content {
+    @apply bg-white p-6 rounded-lg shadow-lg w-96 relative;
+  }
 }
 
-/* Style du corps de la page */
-body {
-  font-family: 'Playfair Display', serif;
-  background-color: var(--background);
-  color: var(--foreground);
+@layer utilities {
+  .min-h-dynamic {
+    min-height: calc(100vh - 4rem);
+  }
 }
 
-/* En-têtes globaux */
-h1, h2, h3, h4, h5, h6 {
-  margin: 0;
-  padding: 0;
+.calendar-container {
+  @apply p-6 rounded-xl shadow-lg;
+  min-height: 700px;
+  padding-top: 5rem;
 }
 
-/* Liens généraux */
-a {
-  text-decoration: none;
-  color: white;
-  font-size: 1rem;
-  font-weight: 500;
-  transition: color 0.3s ease;
+.fc {
+  @apply bg-gray-800/50 rounded-xl overflow-hidden;
+  max-width: 100%;
 }
 
-a:hover {
-  color: var(--hover-color);
+.fc-theme-standard td, 
+.fc-theme-standard th,
+.fc-theme-standard .fc-scrollgrid {
+  @apply border-gray-700;
 }
 
-/* Navigation */
-nav {
-  display: flex;
-  gap: 10px;
+.fc-day-today {
+  @apply bg-gray-700/50 !important;
 }
 
-/* Classes utilitaires */
-.text-shadow {
-  text-shadow: 0px 4px 6px rgba(0, 0, 0, 0.4);
+.fc-button-primary {
+  @apply bg-purple-600 border-purple-700 !important;
+  @apply hover:bg-purple-700 hover:border-purple-800 !important;
 }
 
-.bg-cover {
-  background-size: cover;
-  background-position: center;
+.fc-toolbar-title {
+  @apply text-white;
 }
 
-.drop-shadow-lg {
-  filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.4));
+.fc-daygrid-day-number,
+.fc-col-header-cell-cushion {
+  @apply text-gray-300;
 }
 
-.drop-shadow-md {
-  filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.3));
+.fc-event {
+  @apply cursor-pointer transition-transform hover:scale-105;
 }
 
-/* Configuration Leaflet */
-.leaflet-container {
-  height: 100%;
-  width: 100%;
+.fc-event-title {
+  @apply font-semibold;
 }
 
-/* Reset global */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+.loading-spinner {
+  @apply w-12 h-12 border-4 border-purple-500 border-t-transparent
+  rounded-full animate-spin mx-auto my-12;
+}
+
+.error-message {
+  @apply text-red-500 text-center p-4 bg-red-900/50 rounded-lg my-4;
 }

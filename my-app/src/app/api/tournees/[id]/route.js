@@ -1,6 +1,27 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/db';
 
+/**
+ * @swagger
+ * /api/tournees/{id}:
+ *   get:
+ *     summary: Récupérer une tournée par ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Détails de la tournée
+ *       400:
+ *         description: ID invalide
+ *       404:
+ *         description: Tournée non trouvée
+ *       500:
+ *         description: Erreur serveur
+ */
 export async function GET(req) {
   const id = req.nextUrl.pathname.split('/').pop();
 
@@ -22,11 +43,55 @@ export async function GET(req) {
   }
 }
 
-
-export async function PATCH(req, { params }) {
-  const { id } = params;
-  const body = await req.json();
+/**
+ * @swagger
+ * /api/tournees/{id}:
+ *   patch:
+ *     summary: Mettre à jour une tournée par ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               jour_preparation:
+ *                 type: string
+ *                 format: date
+ *               jour_livraison:
+ *                 type: string
+ *                 format: date
+ *               statut_tournee:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Tournée mise à jour
+ *       400:
+ *         description: Champs requis manquants ou invalides
+ *       404:
+ *         description: Tournée non trouvée
+ *       500:
+ *         description: Erreur serveur
+ */
+export async function PATCH(req) {
+  const id = req.nextUrl.pathname.split('/').pop();
+  let body;
+  try {
+    body = await req.json();
+  } catch (error) {
+    return NextResponse.json({ error: 'Invalid JSON input' }, { status: 400 });
+  }
   const { jour_preparation, jour_livraison, statut_tournee } = body;
+
+  if (!id || isNaN(id)) {
+    return NextResponse.json({ error: "L'ID de la tournée est invalide." }, { status: 400 });
+  }
 
   if (jour_preparation && jour_livraison && new Date(jour_preparation) >= new Date(jour_livraison)) {
     return NextResponse.json({
@@ -58,10 +123,55 @@ export async function PATCH(req, { params }) {
   }
 }
 
-export async function PUT(req, { params }) {
-  const { id } = params;
-  const body = await req.json();
+/**
+ * @swagger
+ * /api/tournees/{id}:
+ *   put:
+ *     summary: Remplacer une tournée par ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               jour_preparation:
+ *                 type: string
+ *                 format: date
+ *               jour_livraison:
+ *                 type: string
+ *                 format: date
+ *               statut_tournee:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Tournée remplacée
+ *       400:
+ *         description: Champs requis manquants ou invalides
+ *       404:
+ *         description: Tournée non trouvée
+ *       500:
+ *         description: Erreur serveur
+ */
+export async function PUT(req) {
+  const id = req.nextUrl.pathname.split('/').pop();
+  let body;
+  try {
+    body = await req.json();
+  } catch (error) {
+    return NextResponse.json({ error: 'Invalid JSON input' }, { status: 400 });
+  }
   const { jour_preparation, jour_livraison, statut_tournee } = body;
+
+  if (!id || isNaN(id)) {
+    return NextResponse.json({ error: "L'ID de la tournée est invalide." }, { status: 400 });
+  }
 
   if (jour_preparation && jour_livraison && new Date(jour_preparation) >= new Date(jour_livraison)) {
     return NextResponse.json({
@@ -91,8 +201,29 @@ export async function PUT(req, { params }) {
   }
 }
 
-export async function DELETE(req, { params }) {
-  const { id } = params;
+/**
+ * @swagger
+ * /api/tournees/{id}:
+ *   delete:
+ *     summary: Supprimer une tournée par ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Tournée supprimée
+ *       400:
+ *         description: ID invalide
+ *       404:
+ *         description: Tournée non trouvée
+ *       500:
+ *         description: Erreur serveur
+ */
+export async function DELETE(req) {
+  const id = req.nextUrl.pathname.split('/').pop();
 
   if (!id || isNaN(id)) {
     return NextResponse.json({ error: "L'ID de la tournée est invalide." }, { status: 400 });
@@ -114,8 +245,41 @@ export async function DELETE(req, { params }) {
   }
 }
 
+/**
+ * @swagger
+ * /api/tournees/{id}:
+ *   post:
+ *     summary: Ajouter une nouvelle tournée
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               jour_preparation:
+ *                 type: string
+ *                 format: date
+ *               jour_livraison:
+ *                 type: string
+ *                 format: date
+ *               statut_tournee:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Tournée créée
+ *       400:
+ *         description: Champs requis manquants ou invalides
+ *       500:
+ *         description: Erreur serveur
+ */
 export async function POST(req) {
-  const body = await req.json();
+  let body;
+  try {
+    body = await req.json();
+  } catch (error) {
+    return NextResponse.json({ error: 'Invalid JSON input' }, { status: 400 });
+  }
   const { jour_preparation, jour_livraison, statut_tournee } = body;
 
   if (new Date(jour_preparation) >= new Date(jour_livraison)) {
@@ -141,6 +305,15 @@ export async function POST(req) {
   }
 }
 
+/**
+ * @swagger
+ * /api/tournees/{id}:
+ *   options:
+ *     summary: Obtenir les méthodes autorisées
+ *     responses:
+ *       200:
+ *         description: Méthodes autorisées
+ */
 export async function OPTIONS() {
   return NextResponse.json(
     { message: 'Méthodes autorisées : GET, POST, PATCH, PUT, DELETE' },

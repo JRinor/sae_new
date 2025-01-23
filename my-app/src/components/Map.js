@@ -1,225 +1,134 @@
-"use client";
-
 import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
 import { FaArrowRight, FaArrowLeft, FaArrowUp, FaFlagCheckered, FaSyncAlt } from 'react-icons/fa';
 
-const Map = ({ points = [], instructions = [] }) => {
-  const mapRef = useRef(null);
-  const mapInstanceRef = useRef(null);
-  const markersRef = useRef([]);
-  const routingControlRef = useRef(null);
-  const [leaflet, setLeaflet] = useState(null);
-  const [isMapReady, setIsMapReady] = useState(false);
+const Map = ({ points = [] }) => {
+    const mapRef = useRef(null);
+    const markersRef = useRef([]);
+    const routingControlRef = useRef(null);
+    const [instructions, setInstructions] = useState([]);
 
-  // Initialisation de Leaflet
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
+    useEffect(() => {
+        const L = require('leaflet');
+        require('leaflet-routing-machine');
 
-    const initLeaflet = async () => {
-      try {
-        const L = await import('leaflet');
-        await import('leaflet-routing-machine');
+        if (!mapRef.current) {
+            mapRef.current = L.map('map').setView([48.18333, 6.45], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors',
+            }).addTo(mapRef.current);
+        }
 
-        // Configuration des icônes par défaut
-        delete L.Icon.Default.prototype._getIconUrl;
-        L.Icon.Default.mergeOptions({
-          iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-          iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-          shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png'
-        });
-
-        setLeaflet(L);
-      } catch (error) {
-        console.error('Erreur lors du chargement de Leaflet:', error);
-      }
-    };
-
-    initLeaflet();
-  }, []);
-
-  // Initialisation de la carte
-  useEffect(() => {
-    if (!leaflet || !mapRef.current || mapInstanceRef.current) return;
-
-    try {
-      const map = leaflet.map(mapRef.current, {
-        center: [48.18333, 6.45],
-        zoom: 13
-      });
-
-      leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors',
-        maxZoom: 19
-      }).addTo(map);
-
-      mapInstanceRef.current = map;
-      setIsMapReady(true);
-
-      return () => {
-        map.remove();
-        mapInstanceRef.current = null;
-        setIsMapReady(false);
-      };
-    } catch (error) {
-      console.error('Erreur lors de l\'initialisation de la carte:', error);
-    }
-  }, [leaflet]);
-
-  // Mise à jour des points et du routage
-  useEffect(() => {
-    if (!isMapReady || !leaflet || !mapInstanceRef.current || !Array.isArray(points) || points.length === 0) return;
-
-    const updateMap = async () => {
-      try {
-        // Nettoyage des marqueurs existants
-        markersRef.current.forEach(marker => marker.remove());
+        markersRef.current.forEach((marker) => marker.remove());
         markersRef.current = [];
-
-        // Nettoyage du routage existant
         if (routingControlRef.current) {
-          routingControlRef.current.remove();
+            routingControlRef.current.remove();
         }
 
-        // Filtrage et validation des points
-        const validPoints = points.filter(point =>
-            point &&
-            point.latitude &&
-            point.longitude &&
-            !isNaN(parseFloat(point.latitude)) &&
-            !isNaN(parseFloat(point.longitude))
-        );
-
-        if (validPoints.length === 0) return;
-
-        // Création des marqueurs
-        const latLngs = validPoints.map(point => {
-          const latLng = [parseFloat(point.latitude), parseFloat(point.longitude)];
-          const marker = leaflet.marker(latLng)
-              .bindPopup(`<strong>${point.nom}</strong><br>${point.adresse}`)
-              .addTo(mapInstanceRef.current);
-          markersRef.current.push(marker);
-          return latLng;
+        const customIcon = L.icon({
+            iconUrl: '/img/icon.png',
+            iconSize: [32, 32],
+            iconAnchor: [16, 32],
+            popupAnchor: [0, -32],
         });
 
-        // Ajustement de la vue
-        const bounds = leaflet.latLngBounds(latLngs);
-        mapInstanceRef.current.fitBounds(bounds, { padding: [50, 50] });
+        const latLngs = points.map((point) => {
+            const latLng = [parseFloat(point.latitude), parseFloat(point.longitude)];
+            const marker = L.marker(latLng, { icon: customIcon })
+                .addTo(mapRef.current)
+                .bindPopup(`<strong>${point.nom}</strong><br>${point.adresse}`);
+            markersRef.current.push(marker);
+            return latLng;
+        });
 
-        // Configuration du routage
-        if (latLngs.length > 1 && leaflet.Routing) {
-          const control = leaflet.Routing.control({
-            waypoints: latLngs.map(latLng => leaflet.latLng(latLng[0], latLng[1])),
-            routeWhileDragging: false,
-            showAlternatives: false,
-            fitSelectedRoutes: false,
-            show: false,
-            lineOptions: {
-              styles: [{ color: '#3B82F6', opacity: 0.7, weight: 5 }]
-            }
-          }).addTo(mapInstanceRef.current);
-
-          routingControlRef.current = control;
-
-          control.on('routesfound', (e) => {
-            if (e.routes?.[0]?.instructions) {
-              const steps = e.routes[0].instructions.map((step, index) => ({
-                id: index,
-                distance: step.distance,
-                text: translateInstruction(step.text),
-                icon: getInstructionIcon(step.text)
-              }));
-              setInstructions(steps);
-            }
-          });
+        if (latLngs.length > 1) {
+            routingControlRef.current = L.Routing.control({
+                waypoints: latLngs,
+                routeWhileDragging: true,
+                createMarker: () => null,
+                lineOptions: {
+                    styles: [{ color: 'blue', opacity: 1, weight: 5 }],
+                },
+                show: false,
+                addWaypoints: false,
+                draggableWaypoints: false,
+                fitSelectedRoutes: true,
+                showAlternatives: false,
+            })
+                .on('routesfound', (e) => {
+                    const routes = e.routes;
+                    const steps = routes[0].instructions.map((step) => ({
+                        distance: step.distance,
+                        text: translateInstruction(step.text),
+                        icon: getInstructionIcon(step.text),
+                    }));
+                    setInstructions(steps);
+                })
+                .addTo(mapRef.current);
+        } else if (latLngs.length === 1) {
+            mapRef.current.setView(latLngs[0], 13);
         }
-      } catch (error) {
-        console.error('Erreur lors de la mise à jour de la carte:', error);
-        setInstructions([]);
-      }
+    }, [points]);
+
+    const translateInstruction = (text) => {
+        const translations = {
+            'Head north on': 'Dirigez-vous vers le nord sur',
+            'Turn right onto': 'Tournez à droite sur',
+        };
+        let result = text;
+        Object.keys(translations).forEach((key) => {
+            if (result.includes(key)) {
+                result = result.replace(key, translations[key]);
+            }
+        });
+        return result;
     };
 
-    updateMap();
-
-    return () => {
-      if (routingControlRef.current) {
-        routingControlRef.current.remove();
-        routingControlRef.current = null;
-      }
-    };
-  }, [points, isMapReady, leaflet]);
-
-  const translateInstruction = (text) => {
-    const translations = {
-      'Head north': 'Dirigez-vous vers le nord',
-      'Head northeast': 'Dirigez-vous vers le nord-est',
-      'Head east': 'Dirigez-vous vers l\'est',
-      'Head southeast': 'Dirigez-vous vers le sud-est',
-      'Head south': 'Dirigez-vous vers le sud',
-      'Head southwest': 'Dirigez-vous vers le sud-ouest',
-      'Head west': 'Dirigez-vous vers l\'ouest',
-      'Head northwest': 'Dirigez-vous vers le nord-ouest',
-      'Turn right': 'Tournez à droite',
-      'Turn left': 'Tournez à gauche',
-      'Continue straight': 'Continuez tout droit',
-      'Keep right': 'Restez à droite',
-      'Keep left': 'Restez à gauche',
-      'Enter roundabout': 'Entrez dans le rond-point',
-      'Exit roundabout': 'Sortez du rond-point',
-      'Arrive at destination': 'Arrivée à destination'
+    const getInstructionIcon = (text) => {
+        if (text.includes('Turn right')) return <FaArrowRight color="blue" size={20} />;
+        if (text.includes('Turn left')) return <FaArrowLeft color="blue" size={20} />;
+        if (text.includes('Continue straight')) return <FaArrowUp color="blue" size={20} />;
+        if (text.includes('Enter the traffic circle')) return <FaSyncAlt color="blue" size={20} />;
+        if (text.includes('You have arrived')) return <FaFlagCheckered color="green" size={20} />;
+        return null;
     };
 
-    return Object.entries(translations).reduce((acc, [en, fr]) =>
-        acc.replace(new RegExp(en, 'gi'), fr), text);
-  };
-
-  const getInstructionIcon = (text) => {
-    const text_lower = text.toLowerCase();
-    if (text_lower.includes('right')) return <FaArrowRight className="text-blue-500" size={20} />;
-    if (text_lower.includes('left')) return <FaArrowLeft className="text-blue-500" size={20} />;
-    if (text_lower.includes('straight')) return <FaArrowUp className="text-blue-500" size={20} />;
-    if (text_lower.includes('roundabout')) return <FaSyncAlt className="text-blue-500" size={20} />;
-    if (text_lower.includes('destination')) return <FaFlagCheckered className="text-green-500" size={20} />;
-    return <FaArrowUp className="text-blue-500" size={20} />;
-  };
-
-  return (
-      <div className="flex flex-row h-full">
-        <div ref={mapRef} className="w-7/10 h-full" style={{ height: '600px' }} />
-        {instructions.length > 0 && (
-            <div className="w-3/10 h-full bg-white overflow-y-auto p-4 border-l border-gray-200">
-              <h3 className="text-lg font-semibold mb-4 text-gray-800">
-                Instructions de navigation
-              </h3>
-              <ul className="space-y-2">
-                {instructions.map((instruction) => (
-                    <li
-                        key={instruction.id}
-                        className="flex items-start p-2 border-b border-gray-100"
-                    >
-                      <span className="mr-3 mt-1">{instruction.icon}</span>
-                      <div className="flex-1">
-                        <p className="text-gray-800">{instruction.text}</p>
-                        <span className="text-sm text-gray-500">
-                    {Math.round(instruction.distance)}m
-                  </span>
-                      </div>
-                    </li>
-                ))}
-              </ul>
+    return (
+        <div style={{ display: 'flex', flexDirection: 'row' }}>
+            <div id="map" style={{ height: '500px', width: '70%' }} />
+            <div
+                className="instructions"
+                style={{
+                    height: '500px',
+                    width: '30%',
+                    backgroundColor: 'white',
+                    overflowY: 'auto',
+                    padding: '10px',
+                    border: '1px solid #ddd',
+                    boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+                }}
+            >
+                <h3 style={{ textAlign: 'left', fontSize: '18px', marginBottom: '10px' }}>
+                    Instructions de navigation :
+                </h3>
+                <ul style={{ listStyle: 'none', padding: '0', margin: '0' }}>
+                    {instructions.map((instruction, index) => (
+                        <li key={index} style={{ padding: '10px', borderBottom: '1px solid #ddd', display: 'flex', alignItems: 'center' }}>
+                            <div style={{ marginRight: '10px' }}>{instruction.icon}</div>
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <span style={{ color: 'black' }}>{instruction.text}</span>
+                                <span style={{ color: 'gray', fontSize: '14px' }}>
+                                    {instruction.distance.toFixed(0)} m
+                                </span>
+                            </div>
+                        </li>
+                    ))}
+                </ul>
             </div>
-        )}
-      </div>
-  );
+        </div>
+    );
 };
 
-export default dynamic(() => Promise.resolve(Map), {
-  ssr: false,
-  loading: () => (
-      <div className="flex items-center justify-center h-full bg-gray-100">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-      </div>
-  )
-});
+export default dynamic(() => Promise.resolve(Map), { ssr: false });

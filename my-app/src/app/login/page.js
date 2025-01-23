@@ -1,8 +1,7 @@
-"use client"; // Ajoute cette ligne en haut du fichier
+"use client";
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -33,8 +32,8 @@ export default function Login() {
 
       if (res.ok) {
         const data = await res.json();
-        localStorage.setItem('token', data.token); // Stocker le token dans le localStorage
-        router.push('/mon-espace'); // Rediriger l'utilisateur vers son espace personnel
+        localStorage.setItem('token', data.token);
+        router.push('/mon-espace');
       } else {
         const errorData = await res.json();
         setError(errorData.error || 'Email ou mot de passe incorrect.');
@@ -59,7 +58,6 @@ export default function Login() {
           🌸 Bienvenue 🌸
         </h1>
 
-        {/* Affichage de l'erreur, s'il y en a */}
         {error && <div className="text-red-500 text-center mb-4">{error}</div>}
 
         <form onSubmit={handleSubmit}>
@@ -94,7 +92,7 @@ export default function Login() {
           <button
             type="submit"
             className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md shadow-lg transition duration-300"
-            disabled={loading} // Désactiver le bouton pendant le chargement
+            disabled={loading}
           >
             {loading ? 'Chargement...' : 'Se connecter'}
           </button>

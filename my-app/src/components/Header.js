@@ -1,16 +1,14 @@
-// src/components/Header.js
-"use client"; // Assurez-vous de marquer ce fichier comme client-side
+"use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation"; // Utilisez next/navigation au lieu de next/router
-import routes from "../config/routes"; // Import des routes depuis config
+import { useRouter } from "next/navigation";
+import routes from "../config/routes";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
   const router = useRouter();
 
-  // Gestion des clics externes pour fermer le menu
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -29,7 +27,6 @@ export default function Header() {
 
   return (
     <header className="fixed top-0 left-0 flex justify-between items-center px-8 py-4 w-full z-10 text-white font-serif bg-transparent">
-      {/* Logo avec redirection vers l'accueil */}
       <div
         className="text-3xl font-bold cursor-pointer"
         onClick={() => router.push("/")}
@@ -37,7 +34,6 @@ export default function Header() {
         JC
       </div>
 
-      {/* Bouton du menu hamburger */}
       <button
         className="md:hidden text-4xl"
         onClick={(e) => {
@@ -49,7 +45,6 @@ export default function Header() {
         ☰
       </button>
 
-      {/* Boîte de navigation */}
       <div
         ref={menuRef}
         className={`fixed top-0 right-0 h-full w-2/3 bg-red-900 bg-opacity-90 text-white transform transition-transform duration-300 ${
@@ -72,7 +67,6 @@ export default function Header() {
         </nav>
       </div>
 
-      {/* Navigation classique pour les grands écrans */}
       <nav className="hidden md:flex gap-10">
         {routes.map((route) => (
           <button

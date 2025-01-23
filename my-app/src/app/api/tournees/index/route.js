@@ -1,6 +1,17 @@
 import { NextResponse } from 'next/server';
 import pool from '@/lib/db';
 
+/**
+ * @swagger
+ * /api/tournees:
+ *   get:
+ *     summary: Récupérer toutes les tournées
+ *     responses:
+ *       200:
+ *         description: Liste des tournées
+ *       500:
+ *         description: Erreur serveur
+ */
 export async function GET() {
   try {
     const client = await pool.connect();
@@ -28,6 +39,32 @@ export async function GET() {
   }
 }
 
+/**
+ * @swagger
+ * /api/tournees:
+ *   post:
+ *     summary: Créer une nouvelle tournée
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               jour_preparation:
+ *                 type: string
+ *                 format: date
+ *               jour_livraison:
+ *                 type: string
+ *                 format: date
+ *     responses:
+ *       201:
+ *         description: Tournée créée
+ *       400:
+ *         description: Champs requis manquants ou invalides
+ *       500:
+ *         description: Erreur serveur
+ */
 export async function POST(req) {
   const { jour_preparation, jour_livraison } = await req.json();
 

@@ -1,201 +1,199 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from 'react';
-import Map from '@/components/Map';
+import { useState, useEffect } from 'react';
+import Map from '../../components/Map';
+import Select from 'react-select'; 
+import Header from '@/components/Header'; // Ensure Header is imported
 
 const Tournees = () => {
-  const [tournees, setTournees] = useState([]); // Toutes les tournées
-  const [selectedTournee, setSelectedTournee] = useState(null); // Tournée sélectionnée
-  const [pointsDepot, setPointsDepot] = useState([]); // Tous les points de dépôt
-  const [mapPoints, setMapPoints] = useState([]); // Points à afficher sur la carte
-  const [instructions, setInstructions] = useState([]); // Instructions de navigation
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+    const [points, setPoints] = useState([]);
+    const [allPoints, setAllPoints] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [selectedPoint, setSelectedPoint] = useState(null);
+    const [itineraries, setItineraries] = useState({});
+    const [currentTournee, setCurrentTournee] = useState(null);
 
-  // Charger toutes les tournées et points de dépôt au démarrage
-  useEffect(() => {
-    const fetchTournees = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch('/api/tournees/index');
-        if (!response.ok) throw new Error('Erreur lors de la récupération des tournées');
-        const data = await response.json();
-        setTournees(data);
+    useEffect(() => {
+        const fetchAllPoints = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const response = await fetch('/api/points-depot');
+                if (!response.ok) throw new Error('Erreur lors de la récupération des points de dépôt.');
+                const data = await response.json();
+                setAllPoints(data);
+                setPoints(data);
+            } catch (err) {
+                console.error(err);
+                setError('Impossible de charger tous les points de dépôt.');
+            } finally {
+                setLoading(false);
+            }
+        };
 
-        // Charger les points de toutes les tournées
-        const allPoints = await Promise.all(
-            data.map(async (tournee) => {
-              const pointsResponse = await fetch(`/api/tournees/${tournee.id_tournee}/points-depot`);
-              if (!pointsResponse.ok) return [];
-              const pointsData = await pointsResponse.json();
-              return pointsData.points;
-            })
-        );
+        fetchAllPoints();
+    }, []);
 
-        // Aplatir et combiner tous les points
-        const combinedPoints = allPoints.flat();
-        setMapPoints(combinedPoints);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
+    const handleLoadTournee = async (tourneeId) => {
+        setLoading(true);
+        setError(null);
+
+        if (currentTournee !== null) {
+            setItineraries((prevItineraries) => ({
+                ...prevItineraries,
+                [currentTournee]: points,
+            }));
+        }
+
+        if (itineraries[tourneeId]) {
+            setPoints(itineraries[tourneeId]);
+            setCurrentTournee(tourneeId);
+            setLoading(false);
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/tournees/${tourneeId}/points-depot`);
+            if (!response.ok) throw new Error('Erreur lors de la récupération des points de la tournée.');
+            const data = await response.json();
+            setPoints(data.points);
+            setCurrentTournee(tourneeId);
+        } catch (err) {
+            console.error('Erreur :', err);
+            setError('Impossible de charger les points de la tournée.');
+        } finally {
+            setLoading(false);
+        }
     };
 
-    fetchTournees();
-  }, []);
+    const handleAddToItinerary = async () => {
+        if (!selectedPoint || !currentTournee) {
+            setError("Veuillez sélectionner un point et une tournée.");
+            return;
+        }
 
-  // Charger tous les points de dépôt disponibles
-  useEffect(() => {
-    const fetchPointsDepot = async () => {
-      try {
-        const response = await fetch('/api/points-depot');
-        if (!response.ok) throw new Error('Erreur lors de la récupération des points de dépôt');
-        const data = await response.json();
-        setPointsDepot(data);
-      } catch (err) {
-        setError(err.message);
-      }
+        const pointToAdd = allPoints.find((point) => point.ID_PointDeDepot === selectedPoint.ID_PointDeDepot);
+
+        if (pointToAdd) {
+            const alreadyInItinerary = points.some((p) => p.ID_PointDeDepot === pointToAdd.ID_PointDeDepot);
+            if (!alreadyInItinerary) {
+                try {
+                    const body = JSON.stringify({ pointId: pointToAdd.ID_PointDeDepot, ordre: points.length + 1 });
+                    const response = await fetch(`/api/tournees/${currentTournee}/points-depot`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body,
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || 'Erreur lors de l\'ajout du point à l\'itinéraire.');
+                    }
+
+                    setPoints((prevPoints) => [...prevPoints, pointToAdd]);
+                    setError(null);
+                } catch (err) {
+                    console.error('Erreur :', err);
+                    setError(err.message || 'Impossible d\'ajouter le point à l\'itinéraire.');
+                }
+            } else {
+                setError('Ce point est déjà dans l\'itinéraire.');
+            }
+        } else {
+            setError('Point de dépôt non trouvé.');
+        }
     };
 
-    fetchPointsDepot();
-  }, []);
+    const pointsOptions = allPoints.map((point) => ({
+        value: point.ID_PointDeDepot,
+        label: `${point.nom} - ${point.adresse}`,
+    }));
 
-  // Gérer la sélection d'une tournée
-  const handleTourneeSelect = async (tourneeId) => {
-    setLoading(true);
-    try {
-      if (!tourneeId) {
-        // Si aucune tournée n'est sélectionnée, afficher tous les points
-        const allPointsResponse = await Promise.all(
-            tournees.map(async (tournee) => {
-              const response = await fetch(`/api/tournees/${tournee.id_tournee}/points-depot`);
-              if (!response.ok) return [];
-              return response.json();
-            })
-        );
-        setMapPoints(allPointsResponse.flat());
-        setSelectedTournee(null);
-        setInstructions([]);
-      } else {
-        // Charger les points de la tournée sélectionnée
-        const response = await fetch(`/api/tournees/${tourneeId}/points-depot`);
-        if (!response.ok) throw new Error('Erreur lors de la récupération des points de la tournée');
-        const data = await response.json();
-        setMapPoints(data.points);
-        setSelectedTournee(tourneeId);
-
-        // Charger les instructions de navigation
-        const routeResponse = await fetch(`/api/tournees/${tourneeId}/route`);
-        if (!routeResponse.ok) throw new Error('Erreur lors de la récupération des instructions de navigation');
-        const routeData = await routeResponse.json();
-        setInstructions(routeData.instructions);
-      }
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Ajouter un point à la tournée sélectionnée
-  const handleAddPoint = async (pointId) => {
-    if (!selectedTournee || !pointId) return;
-
-    try {
-      const response = await fetch(`/api/tournees/${selectedTournee}/points-depot`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pointId })
-      });
-
-      if (!response.ok) throw new Error('Erreur lors de l\'ajout du point');
-
-      // Recharger les points de la tournée
-      await handleTourneeSelect(selectedTournee);
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
-  return (
-      <div className="min-h-screen bg-gray-900 text-white p-8">
-        <div className="max-w-7xl mx-auto">
-          {/* En-tête */}
-          <h1 className="text-3xl font-bold mb-8">Gestion des Tournées</h1>
-
-          {/* Messages d'erreur */}
-          {error && (
-              <div className="bg-red-500 text-white p-4 rounded-lg mb-4">
-                {error}
-              </div>
-          )}
-
-          {/* Sélection de tournée */}
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">Sélectionner une tournée</h2>
-            <div className="flex gap-4">
-              <button
-                  onClick={() => handleTourneeSelect(null)}
-                  className={`px-6 py-2 rounded-lg transition-colors ${
-                      !selectedTournee
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-gray-700 hover:bg-gray-600'
-                  }`}
-              >
-                Toutes les tournées
-              </button>
-              {tournees.map((tournee) => (
-                  <button
-                      key={tournee.id_tournee}
-                      onClick={() => handleTourneeSelect(tournee.id_tournee)}
-                      className={`px-6 py-2 rounded-lg transition-colors ${
-                          selectedTournee === tournee.id_tournee
-                              ? 'bg-blue-600 text-white'
-                              : 'bg-gray-700 hover:bg-gray-600'
-                      }`}
-                  >
-                    Tournée {tournee.id_tournee}
-                  </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Ajout de point */}
-          {selectedTournee && (
-              <div className="mb-8">
-                <h2 className="text-xl font-semibold mb-4">Ajouter un point de dépôt</h2>
-                <select
-                    onChange={(e) => handleAddPoint(e.target.value)}
-                    className="bg-gray-800 text-white p-2 rounded-lg w-full max-w-md"
-                    defaultValue=""
-                >
-                  <option value="" disabled>Sélectionner un point de dépôt</option>
-                  {pointsDepot.map((point) => (
-                      <option
-                          key={point.id_pointdedepot}
-                          value={point.id_pointdedepot}
-                      >
-                        {point.nom} - {point.adresse}
-                      </option>
-                  ))}
-                </select>
-              </div>
-          )}
-
-          {/* Carte */}
-          <div className="h-[600px] bg-gray-800 rounded-lg overflow-hidden">
-            {loading ? (
-                <div className="h-full flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+    return (
+        <main className="flex flex-col min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
+            <Header /> {/* Ensure Header is used */}
+            <nav className="fixed top-0 left-0 right-0 z-50 bg-gray-900/90 backdrop-blur-sm shadow-xl pt-20">
+                <div className="container mx-auto px-4 py-6">
+                    <div className="flex justify-center gap-6">
+                        <button
+                            onClick={() => handleLoadTournee(1)}
+                            className="btn-tournee bg-gradient-to-r from-red-600 to-red-500 text-white"
+                        >
+                            Tournée 1
+                        </button>
+                        <button
+                            onClick={() => handleLoadTournee(2)}
+                            className="btn-tournee bg-gradient-to-r from-green-600 to-green-500 text-white"
+                        >
+                            Tournée 2
+                        </button>
+                    </div>
                 </div>
-            ) : (
-                <Map points={mapPoints} instructions={instructions} />
-            )}
-          </div>
-        </div>
-      </div>
-  );
+            </nav>
+
+            <div className="container mx-auto px-4 pt-28 pb-8 flex-grow">
+                {error && (
+                    <div className="mb-6 p-4 bg-red-900/50 border border-red-500 rounded-lg animate-fade-in">
+                        <p className="text-red-400">{error}</p>
+                    </div>
+                )}
+
+                {loading && (
+                    <div className="flex justify-center items-center p-4">
+                        <div className="loading-spinner"></div>
+                    </div>
+                )}
+
+                <div className="grid lg:grid-cols-4 gap-6">
+                    <div className="lg:col-span-1 space-y-4">
+                        <div className="bg-gray-800/50 rounded-xl p-6 backdrop-blur-sm shadow-lg">
+                            {!loading && allPoints.length > 0 && (
+                                <div className="space-y-4">
+                                    <label className="block text-lg font-medium text-gray-200">
+                                        Points de dépôt
+                                    </label>
+                                    <Select
+                                        options={pointsOptions}
+                                        value={selectedPoint ? {
+                                            value: selectedPoint.ID_PointDeDepot,
+                                            label: selectedPoint.nom
+                                        } : null}
+                                        onChange={(selected) => {
+                                            const point = allPoints.find(p => 
+                                                p.ID_PointDeDepot === selected.value
+                                            );
+                                            setSelectedPoint(point);
+                                        }}
+                                        placeholder="Sélectionner un point"
+                                        className="react-select-container"
+                                        classNamePrefix="react-select"
+                                    />
+                                    <button
+                                        onClick={handleAddToItinerary}
+                                        className="w-full py-3 px-6 bg-gradient-to-r from-purple-600 
+                                        to-purple-500 rounded-lg transition-all duration-300 
+                                        hover:shadow-purple-500/25 hover:scale-[1.02] 
+                                        active:scale-[0.98] shadow-lg text-white"
+                                    >
+                                        Ajouter au trajet
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="lg:col-span-3 bg-gray-800/50 rounded-xl overflow-hidden shadow-lg">
+                        <div className="h-[600px]">
+                            <Map points={Array.isArray(points) ? points : []} />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    );
 };
 
 export default Tournees;

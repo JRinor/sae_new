@@ -1,0 +1,293 @@
+{
+  "info": {
+    "name": "API Tests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Tournees",
+      "item": [
+        {
+          "name": "Get All Tournees Dates",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tournees/dates",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tournees", "dates"]
+            }
+          }
+        },
+        {
+          "name": "Tournee by ID",
+          "item": [
+            {
+              "name": "Get Tournee by ID",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/tournees/:id",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "tournees", ":id"],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Update Tournee by ID",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"jour_preparation\": \"2023-10-01\", \"jour_livraison\": \"2023-10-02\", \"statut_tournee\": \"en cours\"}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/tournees/:id",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "tournees", ":id"],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Replace Tournee by ID",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"jour_preparation\": \"2023-10-01\", \"jour_livraison\": \"2023-10-02\", \"statut_tournee\": \"en cours\"}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/tournees/:id",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "tournees", ":id"],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Delete Tournee by ID",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/tournees/:id",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "tournees", ":id"],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Add New Tournee",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"jour_preparation\": \"2023-10-01\", \"jour_livraison\": \"2023-10-02\", \"statut_tournee\": \"en cours\"}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tournees",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tournees"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Points de Depot",
+      "item": [
+        {
+          "name": "Get All Points de Depot",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/points-depot",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "points-depot"]
+            }
+          }
+        },
+        {
+          "name": "Add New Point de Depot",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nom\": \"Point A\", \"adresse\": \"123 Rue Example\", \"latitude\": 48.8566, \"longitude\": 2.3522, \"id_structure\": 1}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/points-depot",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "points-depot"]
+            }
+          }
+        },
+        {
+          "name": "Update Point de Depot",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"id\": 1, \"nom\": \"Point A Updated\", \"adresse\": \"123 Rue Example\", \"latitude\": 48.8566, \"longitude\": 2.3522}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/points-depot",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "points-depot"]
+            }
+          }
+        },
+        {
+          "name": "Delete Point de Depot",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"id\": 1}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/points-depot",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "points-depot"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Structures",
+      "item": [
+        {
+          "name": "Get All Structures",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/structures",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "structures"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Calendrier",
+      "item": [
+        {
+          "name": "Get Open Weeks",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/openweeks",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "openweeks"]
+            }
+          }
+        },
+        {
+          "name": "Get Holidays",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/holidays",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "holidays"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Commandes",
+      "item": [
+        {
+          "name": "Create Commande",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"id_abonnement\": 1, \"id_point_de_depot\": 1, \"quantite\": 10, \"date_livraison\": \"2023-10-01\", \"statut\": \"en attente\"}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/commandes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "commandes"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

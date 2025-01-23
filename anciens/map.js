@@ -2,13 +2,13 @@ import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
-import { FaArrowRight, FaArrowLeft, FaArrowUp, FaFlagCheckered, FaSyncAlt } from 'react-icons/fa'; // Import des icônes
+import { FaArrowRight, FaArrowLeft, FaArrowUp, FaFlagCheckered, FaSyncAlt } from 'react-icons/fa';
 
 const Map = ({ points }) => {
     const mapRef = useRef(null);
     const markersRef = useRef([]);
     const routingControlRef = useRef(null);
-    const [instructions, setInstructions] = useState([]); // Instructions state
+    const [instructions, setInstructions] = useState([]);
 
     useEffect(() => {
         const L = require('leaflet');
@@ -21,14 +21,12 @@ const Map = ({ points }) => {
             }).addTo(mapRef.current);
         }
 
-        // Remove old markers and routes
         markersRef.current.forEach((marker) => marker.remove());
         markersRef.current = [];
         if (routingControlRef.current) {
             routingControlRef.current.remove();
         }
 
-        // Custom marker icon
         const customIcon = L.icon({
             iconUrl: '/img/icon.png',
             iconSize: [32, 32],
@@ -65,7 +63,7 @@ const Map = ({ points }) => {
                         return {
                             distance: step.distance,
                             text: translateInstruction(step.text),
-                            icon: getInstructionIcon(step.text), // Get icon based on the instruction
+                            icon: getInstructionIcon(step.text),
                         };
                     });
                     setInstructions(steps);
@@ -124,7 +122,7 @@ const Map = ({ points }) => {
         if (text.includes('You have arrived')) {
             return <FaFlagCheckered color="green" size={20} />;
         }
-        return null; // Default: no icon
+        return null;
     };
 
     return (
@@ -160,8 +158,8 @@ const Map = ({ points }) => {
                             <div style={{ display: 'flex', flexDirection: 'column' }}>
                                 <span style={{ color: 'black' }}>{instruction.text}</span>
                                 <span style={{ color: 'gray', fontSize: '14px' }}>
-                  {instruction.distance.toFixed(0)} m
-                </span>
+                                    {instruction.distance.toFixed(0)} m
+                                </span>
                             </div>
                         </li>
                     ))}

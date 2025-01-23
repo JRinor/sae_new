@@ -1,6 +1,17 @@
 // File: src/app/api/structures/route.js
 import db from '@/lib/db';
 
+/**
+ * @swagger
+ * /api/structures:
+ *   get:
+ *     summary: Récupérer toutes les structures
+ *     responses:
+ *       200:
+ *         description: Liste des structures
+ *       500:
+ *         description: Erreur serveur
+ */
 export async function GET() {
   try {
     const result = await db.query('SELECT * FROM Structure');

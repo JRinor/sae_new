@@ -1,7 +1,19 @@
 // src/app/api/holidays/route.js
-import db from '@/lib/db'; // Change pour correspondre à l'alias défini dans jsconfig.json
+import db from '@/lib/db';
 import fetch from 'node-fetch';
 
+/**
+ * @swagger
+ * /api/holidays:
+ *   get:
+ *     tags: [Calendrier]
+ *     summary: Récupérer les jours fériés
+ *     responses:
+ *       200:
+ *         description: Liste des jours fériés
+ *       500:
+ *         description: Erreur serveur
+ */
 export async function GET() {
   try {
     const response = await fetch('https://date.nager.at/api/v3/PublicHolidays/2025/FR');
