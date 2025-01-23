@@ -155,4 +155,4 @@ La documentation Swagger de l'API est disponible à l'adresse suivante :
 
 ## Importer les tests API dans Postman
 Un fichier JSON pour importer les tests API dans Postman est disponible :
-- **Test API Postman** : [POSTMAN_API.json](https://github.com/JRinor/sae_new/blob/main/POSTMAN_API.json)
+- **Test API Postman** : [POSTMAN_API.json](https://github.com/JRinor/sae_new/blob/main/POSTMAN_API.json) .
