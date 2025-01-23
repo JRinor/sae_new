@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import Map from '../../components/Map';
-import Select from 'react-select'; 
 import Header from '@/components/Header';
 
 const Tournees = () => {
@@ -10,8 +9,6 @@ const Tournees = () => {
     const [allPoints, setAllPoints] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [selectedPoint, setSelectedPoint] = useState(null);
-    const [itineraries, setItineraries] = useState({});
     const [currentTournee, setCurrentTournee] = useState(null);
 
     useEffect(() => {
@@ -23,7 +20,6 @@ const Tournees = () => {
                 if (!response.ok) throw new Error('Erreur lors de la récupération des points de dépôt.');
                 const data = await response.json();
                 setAllPoints(data);
-                setPoints(data);
             } catch (err) {
                 console.error(err);
                 setError('Impossible de charger tous les points de dépôt.');
@@ -38,27 +34,13 @@ const Tournees = () => {
     const handleLoadTournee = async (tourneeId) => {
         setLoading(true);
         setError(null);
-
-        if (currentTournee !== null) {
-            setItineraries((prevItineraries) => ({
-                ...prevItineraries,
-                [currentTournee]: points,
-            }));
-        }
-
-        if (itineraries[tourneeId]) {
-            setPoints(itineraries[tourneeId]);
-            setCurrentTournee(tourneeId);
-            setLoading(false);
-            return;
-        }
+        setCurrentTournee(tourneeId);
 
         try {
             const response = await fetch(`/api/tournees/${tourneeId}/points-depot`);
             if (!response.ok) throw new Error('Erreur lors de la récupération des points de la tournée.');
             const data = await response.json();
-            setPoints(data.points);
-            setCurrentTournee(tourneeId);
+            setPoints(data.points || []);
         } catch (err) {
             console.error('Erreur :', err);
             setError('Impossible de charger les points de la tournée.');
@@ -67,55 +49,52 @@ const Tournees = () => {
         }
     };
 
-    const handleAddToItinerary = async () => {
-        if (!selectedPoint || !currentTournee) {
-            setError("Veuillez sélectionner un point et une tournée.");
+    const handleAddToItinerary = async (pointId) => {
+        console.log('Adding point:', pointId, 'to tournee:', currentTournee); // Debug log
+
+        if (!currentTournee) {
+            setError("Veuillez sélectionner une tournée.");
             return;
         }
 
-        const pointToAdd = allPoints.find((point) => point.ID_PointDeDepot === selectedPoint.ID_PointDeDepot);
+        if (!pointId) {
+            setError("Point de dépôt invalide.");
+            return;
+        }
 
-        if (pointToAdd) {
-            const alreadyInItinerary = points.some((p) => p.ID_PointDeDepot === pointToAdd.ID_PointDeDepot);
-            if (!alreadyInItinerary) {
-                try {
-                    const body = JSON.stringify({ pointId: pointToAdd.ID_PointDeDepot, ordre: points.length + 1 });
-                    const response = await fetch(`/api/tournees/${currentTournee}/points-depot`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body,
-                    });
+        try {
+            const payload = {
+                pointId: parseInt(pointId),
+                ordre: points.length + 1
+            };
 
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.error || 'Erreur lors de l\'ajout du point à l\'itinéraire.');
-                    }
+            console.log('Sending payload:', payload); // Debug log
 
-                    setPoints((prevPoints) => [...prevPoints, pointToAdd]);
-                    setError(null);
-                } catch (err) {
-                    console.error('Erreur :', err);
-                    setError(err.message || 'Impossible d\'ajouter le point à l\'itinéraire.');
-                }
-            } else {
-                setError('Ce point est déjà dans l\'itinéraire.');
+            const response = await fetch(`/api/tournees/${currentTournee}/points-depot`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Erreur lors de l\'ajout du point à l\'itinéraire.');
             }
-        } else {
-            setError('Point de dépôt non trouvé.');
+
+            await handleLoadTournee(currentTournee);
+            setError(null);
+        } catch (err) {
+            console.error('Erreur:', err);
+            setError(err.message || 'Impossible d\'ajouter le point à l\'itinéraire.');
         }
     };
-
-    const pointsOptions = allPoints.map((point) => ({
-        value: point.ID_PointDeDepot,
-        label: `${point.nom} - ${point.adresse}`,
-    }));
 
     return (
         <main className="flex flex-col min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
             <Header /> {/* Ensure Header is used */}
-            <nav className="fixed top-0 left-0 right-0 z-50 bg-gray-900/90 backdrop-blur-sm shadow-xl pt-20">
+            <nav className="fixed top-0 left-0 right-0 z-50 bg-gray-900/90 backdrop-blur-sm shadow-xl">
                 <div className="container mx-auto px-4 py-6">
                     <div className="flex justify-center gap-6">
                         <button
@@ -155,31 +134,23 @@ const Tournees = () => {
                                     <label className="block text-lg font-medium text-gray-200">
                                         Points de dépôt
                                     </label>
-                                    <Select
-                                        options={pointsOptions}
-                                        value={selectedPoint ? {
-                                            value: selectedPoint.ID_PointDeDepot,
-                                            label: selectedPoint.nom
-                                        } : null}
-                                        onChange={(selected) => {
-                                            const point = allPoints.find(p => 
-                                                p.ID_PointDeDepot === selected.value
-                                            );
-                                            setSelectedPoint(point);
-                                        }}
-                                        placeholder="Sélectionner un point"
-                                        className="react-select-container"
-                                        classNamePrefix="react-select"
-                                    />
-                                    <button
-                                        onClick={handleAddToItinerary}
-                                        className="w-full py-3 px-6 bg-gradient-to-r from-purple-600 
-                                        to-purple-500 rounded-lg transition-all duration-300 
-                                        hover:shadow-purple-500/25 hover:scale-[1.02] 
-                                        active:scale-[0.98] shadow-lg text-white"
-                                    >
-                                        Ajouter au trajet
-                                    </button>
+                                    <ul className="space-y-2">
+                                        {allPoints.map((point) => (
+                                            <li 
+                                                key={point.id_pointdedepot} 
+                                                className="flex justify-between items-center p-2 bg-gray-700/50 rounded-lg"
+                                            >
+                                                <span className="text-sm">{point.nom}</span>
+                                                <button
+                                                    onClick={() => handleAddToItinerary(point.id_pointdedepot)}
+                                                    className="px-3 py-1 bg-purple-600 hover:bg-purple-700 rounded-md text-white text-sm transition-colors"
+                                                    disabled={!currentTournee}
+                                                >
+                                                    Ajouter
+                                                </button>
+                                            </li>
+                                        ))}
+                                    </ul>
                                 </div>
                             )}
                         </div>

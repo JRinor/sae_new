@@ -23,6 +23,10 @@ const DeliveryScheduler = () => {
     fetchOpenWeeksAndHolidays();
   }, []);
 
+  useEffect(() => {
+    generateProposedDates();
+  }, [selectedTournee, frequency]);
+
   const fetchOpenWeeksAndHolidays = async () => {
     setLoading(true);
     try {
@@ -46,7 +50,6 @@ const DeliveryScheduler = () => {
   const generateProposedDates = () => {
     if (!selectedTournee || !frequency) return;
     
-    // Logique de génération des dates
     const dates = [];
     let currentDate = new Date();
     const endDate = new Date();
@@ -63,13 +66,11 @@ const DeliveryScheduler = () => {
   };
 
   const isValidDeliveryDate = (date) => {
-    // Vérifier si la date est dans une semaine d'ouverture
     const isOpenWeek = openWeeks.some(week => {
       const weekDate = new Date(week);
       return isSameWeek(date, weekDate);
     });
 
-    // Vérifier si ce n'est pas un jour férié
     const isHoliday = holidays.some(holiday => {
       const holidayDate = new Date(holiday);
       return isSameDay(date, holidayDate);
@@ -115,7 +116,6 @@ const DeliveryScheduler = () => {
         </div>
       </div>
 
-      {/* Propositions de dates */}
       {proposedDates.length > 0 && (
         <div className="mt-6">
           <h3 className="text-lg font-medium text-white mb-4">

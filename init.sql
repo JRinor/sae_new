@@ -235,6 +235,8 @@ CREATE TABLE Calendrier (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- Ajouter un index sur la table Calendrier pour optimiser les recherches
+CREATE INDEX idx_calendrier_date_type ON Calendrier(date, type);
 
 -- Table pour l'historique des tournées
 CREATE TABLE Tournee_Historique (
@@ -248,8 +250,6 @@ CREATE TABLE Tournee_Historique (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (ID_Tournee) REFERENCES Tournee(ID_Tournee) ON DELETE CASCADE
 );
-
-
 
 -- DONNEES D'INSERTION
 
@@ -365,8 +365,38 @@ VALUES
     (1, 'annuelle', '2025-01-01', NULL, 'actif'),
     (2, 'annuelle', '2025-01-01', NULL, 'actif');
 
--- Insertion de jours fériés et semaines d'ouverture
 INSERT INTO Calendrier (date, type) VALUES
 ('2025-01-01', 'ferie'),
 ('2025-01-02', 'ouverture'),
-('2025-01-03', 'ouverture');
+('2025-01-03', 'ouverture'),
+
+('2025-01-06', 'ouverture'),
+('2025-01-07', 'ouverture'),
+('2025-01-08', 'ouverture'),
+('2025-01-09', 'ouverture'),
+('2025-01-10', 'ouverture'),
+
+('2025-01-01', 'ferie'),    -- Jour de l'an
+('2025-04-21', 'ferie'),    -- Lundi de Pâques
+('2025-05-01', 'ferie'),    -- Fête du Travail
+('2025-05-08', 'ferie'),    -- Victoire 1945
+('2025-05-29', 'ferie'),    -- Ascension
+('2025-06-09', 'ferie'),    -- Lundi de Pentecôte
+('2025-07-14', 'ferie'),    -- Fête Nationale
+('2025-08-15', 'ferie'),    -- Assomption
+('2025-11-01', 'ferie'),    -- Toussaint
+('2025-11-11', 'ferie'),    -- Armistice
+('2025-12-25', 'ferie');    -- Noël
+INSERT INTO Calendrier (date, type) VALUES
+
+('2025-01-13', 'ouverture'),
+('2025-01-14', 'ouverture'),
+('2025-01-15', 'ouverture'),
+('2025-01-16', 'ouverture'),
+('2025-01-17', 'ouverture'),
+
+('2025-02-03', 'ouverture'),
+('2025-02-04', 'ouverture'),
+('2025-02-05', 'ouverture'),
+('2025-02-06', 'ouverture'),
+('2025-02-07', 'ouverture');

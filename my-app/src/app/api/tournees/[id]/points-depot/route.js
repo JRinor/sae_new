@@ -91,34 +91,47 @@ export async function GET(req) {
  *         description: Erreur serveur
  */
 export async function POST(req) {
-  const id = extractTourneeId(req.nextUrl.pathname);
-  const { pointId, ordre } = await req.json();
+    const tourneeId = extractTourneeId(req.nextUrl.pathname);
+    const { pointId, ordre } = await req.json();
 
-  if (!id || isNaN(id) || id <= 0 || !pointId) {
-    console.warn('ID de tournée ou ID de point invalide:', { id, pointId });
-    return NextResponse.json({ error: 'ID de tournée ou ID de point invalide.' }, { status: 400 });
-  }
-
-  let client;
-  try {
-    client = await pool.connect();
-    const query = `
-      INSERT INTO Tournee_PointDeDepot (ID_Tournee, ID_PointDeDepot, numero_ordre, ID_Statut)
-      VALUES ($1, $2, $3, 1)
-      ON CONFLICT (ID_Tournee, ID_PointDeDepot) DO NOTHING;
-    `;
-
-    await client.query(query, [id, pointId, ordre || 0]);
-    console.log('Point de dépôt ajouté à la tournée avec succès:', { id, pointId, ordre });
-    return NextResponse.json({ message: 'Point de dépôt ajouté à la tournée.' }, { status: 200 });
-  } catch (error) {
-    console.error('Erreur lors de l\'ajout du point de dépôt à la tournée :', error);
-    return NextResponse.json({ error: 'Erreur serveur.' }, { status: 500 });
-  } finally {
-    if (client) {
-      client.release();
+    if (!tourneeId || !pointId) {
+        return NextResponse.json({ error: 'ID de tournée ou de point manquant.' }, { status: 400 });
     }
-  }
+
+    let client;
+    try {
+        client = await pool.connect();
+        await client.query('BEGIN');
+
+        // Vérifier si le point n'est pas déjà dans la tournée
+        const checkQuery = `
+            SELECT 1 FROM Tournee_PointDeDepot
+            WHERE ID_Tournee = $1 AND ID_PointDeDepot = $2
+        `;
+        const { rows } = await client.query(checkQuery, [tourneeId, pointId]);
+        
+        if (rows.length > 0) {
+            await client.query('ROLLBACK');
+            return NextResponse.json({ error: 'Ce point est déjà dans la tournée.' }, { status: 400 });
+        }
+
+        // Ajouter le point à la tournée
+        const insertQuery = `
+            INSERT INTO Tournee_PointDeDepot (ID_Tournee, ID_PointDeDepot, numero_ordre, ID_Statut)
+            VALUES ($1, $2, $3, 1)
+            RETURNING *
+        `;
+        await client.query(insertQuery, [tourneeId, pointId, ordre]);
+        await client.query('COMMIT');
+
+        return NextResponse.json({ message: 'Point ajouté avec succès.' });
+    } catch (error) {
+        if (client) await client.query('ROLLBACK');
+        console.error('Erreur lors de l\'ajout du point:', error);
+        return NextResponse.json({ error: 'Erreur serveur.' }, { status: 500 });
+    } finally {
+        if (client) client.release();
+    }
 }
 
 /**
@@ -176,3 +189,5 @@ export async function DELETE(req) {
     }
   }
 }
+
+export const runtime = 'nodejs';

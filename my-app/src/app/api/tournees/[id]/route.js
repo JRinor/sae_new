@@ -26,6 +26,7 @@ export async function GET(req) {
   const id = req.nextUrl.pathname.split('/').pop();
 
   if (!id || isNaN(id)) {
+    console.warn("L'ID de la tournée est invalide.");
     return NextResponse.json({ error: "L'ID de la tournée est invalide." }, { status: 400 });
   }
 
@@ -33,12 +34,14 @@ export async function GET(req) {
     const { rows } = await db.query('SELECT * FROM Tournee WHERE id_tournee = $1', [id]);
 
     if (rows.length === 0) {
+      console.warn('Tournée non trouvée:', id);
       return NextResponse.json({ error: 'Tournée non trouvée.' }, { status: 404 });
     }
 
+    console.log('Tournée récupérée avec succès:', rows[0]);
     return NextResponse.json(rows[0], { status: 200 });
   } catch (error) {
-    console.error('Error during the GET request:', error);
+    console.error('Erreur lors de la récupération de la tournée :', error);
     return NextResponse.json({ error: 'Erreur serveur.' }, { status: 500 });
   }
 }
@@ -85,21 +88,25 @@ export async function PATCH(req) {
   try {
     body = await req.json();
   } catch (error) {
+    console.warn('Invalid JSON input');
     return NextResponse.json({ error: 'Invalid JSON input' }, { status: 400 });
   }
   const { jour_preparation, jour_livraison, statut_tournee } = body;
 
   if (!id || isNaN(id)) {
+    console.warn("L'ID de la tournée est invalide.");
     return NextResponse.json({ error: "L'ID de la tournée est invalide." }, { status: 400 });
   }
 
   if (jour_preparation && jour_livraison && new Date(jour_preparation) >= new Date(jour_livraison)) {
+    console.warn('La date de préparation doit être antérieure à la date de livraison.');
     return NextResponse.json({
       error: 'La date de préparation doit être antérieure à la date de livraison.',
     }, { status: 400 });
   }
 
   if (!jour_preparation && !jour_livraison && !statut_tournee) {
+    console.warn('Aucune donnée à mettre à jour.');
     return NextResponse.json({ error: 'Aucune donnée à mettre à jour.' }, { status: 400 });
   }
 
@@ -113,12 +120,14 @@ export async function PATCH(req) {
     const { rows } = await db.query(query, [jour_preparation, jour_livraison, statut_tournee, id]);
 
     if (rows.length === 0) {
+      console.warn('Tournée non trouvée:', id);
       return NextResponse.json({ error: 'Tournée non trouvée.' }, { status: 404 });
     }
 
+    console.log('Tournée mise à jour avec succès:', rows[0]);
     return NextResponse.json(rows[0], { status: 200 });
   } catch (error) {
-    console.error('Error during the PATCH request:', error);
+    console.error('Erreur lors de la mise à jour de la tournée :', error);
     return NextResponse.json({ error: 'Erreur serveur.' }, { status: 500 });
   }
 }
@@ -226,6 +235,7 @@ export async function DELETE(req) {
   const id = req.nextUrl.pathname.split('/').pop();
 
   if (!id || isNaN(id)) {
+    console.warn("L'ID de la tournée est invalide.");
     return NextResponse.json({ error: "L'ID de la tournée est invalide." }, { status: 400 });
   }
 
@@ -233,14 +243,15 @@ export async function DELETE(req) {
     const { rows } = await db.query('SELECT * FROM Tournee WHERE id_tournee = $1', [id]);
 
     if (rows.length === 0) {
+      console.warn('Tournée non trouvée:', id);
       return NextResponse.json({ error: 'Tournée non trouvée.' }, { status: 404 });
     }
 
     await db.query('DELETE FROM Tournee WHERE id_tournee = $1', [id]);
-
+    console.log('Tournée supprimée avec succès:', id);
     return NextResponse.json({ message: 'Tournée supprimée avec succès.' }, { status: 200 });
   } catch (error) {
-    console.error('Error during the DELETE request:', error);
+    console.error('Erreur lors de la suppression de la tournée :', error);
     return NextResponse.json({ error: 'Erreur serveur.' }, { status: 500 });
   }
 }
@@ -320,3 +331,5 @@ export async function OPTIONS() {
     { status: 200, headers: { 'Allow': 'GET, POST, PATCH, PUT, DELETE' } }
   );
 }
+
+export const runtime = 'nodejs';

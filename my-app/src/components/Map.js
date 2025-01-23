@@ -76,6 +76,24 @@ const Map = ({ points = [] }) => {
         const translations = {
             'Head north on': 'Dirigez-vous vers le nord sur',
             'Turn right onto': 'Tournez à droite sur',
+            'Turn left onto': 'Tournez à gauche sur',
+            'Continue straight': 'Continuez tout droit',
+            'Enter the traffic circle': 'Entrez dans le rond-point',
+            'Take the exit': 'Prenez la sortie',
+            'At the roundabout': 'Au rond-point',
+            'Turn left': 'Tournez à gauche',
+            'Turn right': 'Tournez à droite',
+            'Slight right': 'Légèrement à droite',
+            'Slight left': 'Légèrement à gauche',
+            'Sharp right': 'Virez brusquement à droite',
+            'Sharp left': 'Virez brusquement à gauche',
+            'Exit the traffic circle': 'Quittez le rond-point',
+            'You have arrived at your destination': 'Vous êtes arrivé à votre destination',
+            'Continue onto': 'Continuez sur',
+            'Go straight': 'Allez tout droit',
+            'Head southeast': 'Dirigez-vous vers le sud-est',
+            'Head northwest': 'Dirigez-vous vers le nord-ouest',
+            'Keep straight onto': 'Continuez tout droit sur',
         };
         let result = text;
         Object.keys(translations).forEach((key) => {

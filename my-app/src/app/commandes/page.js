@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Header from '@/components/Header';
 
 const Commande = () => {
   const [abonnements, setAbonnements] = useState([]);
@@ -56,12 +57,13 @@ const Commande = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Passer une commande</h1>
+      <Header />
+      <h1 className="text-2xl font-bold mb-4 text-white">Passer une commande</h1>
       {error && <div className="bg-red-100 text-red-700 p-4 mb-4 rounded">{error}</div>}
       {success && <div className="bg-green-100 text-green-700 p-4 mb-4 rounded">{success}</div>}
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
-          <label htmlFor="abonnement" className="block text-sm font-medium text-gray-700">Sélectionner un abonnement</label>
+          <label htmlFor="abonnement" className="block text-sm font-medium text-gray-200">Sélectionner un abonnement</label>
           <select
             id="abonnement"
             className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
@@ -76,7 +78,7 @@ const Commande = () => {
           </select>
         </div>
         <div className="mb-4">
-          <label htmlFor="point" className="block text-sm font-medium text-gray-700">Sélectionner un point de dépôt</label>
+          <label htmlFor="point" className="block text-sm font-medium text-gray-200">Sélectionner un point de dépôt</label>
           <select
             id="point"
             className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
@@ -91,7 +93,7 @@ const Commande = () => {
           </select>
         </div>
         <div className="mb-4">
-          <label htmlFor="quantite" className="block text-sm font-medium text-gray-700">Quantité</label>
+          <label htmlFor="quantite" className="block text-sm font-medium text-gray-200">Quantité</label>
           <input
             type="number"
             id="quantite"
@@ -101,7 +103,7 @@ const Commande = () => {
           />
         </div>
         <div className="mb-4">
-          <label htmlFor="date_livraison" className="block text-sm font-medium text-gray-700">Date de livraison</label>
+          <label htmlFor="date_livraison" className="block text-sm font-medium text-gray-200">Date de livraison</label>
           <input
             type="date"
             id="date_livraison"
@@ -111,7 +113,7 @@ const Commande = () => {
           />
         </div>
         <div className="mb-4">
-          <label htmlFor="statut" className="block text-sm font-medium text-gray-700">Statut</label>
+          <label htmlFor="statut" className="block text-sm font-medium text-gray-200">Statut</label>
           <select
             id="statut"
             className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
