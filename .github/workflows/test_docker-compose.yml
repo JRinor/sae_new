@@ -34,6 +34,9 @@ jobs:
     - name: Docker Compose Up and Build
       run: docker-compose up --build -d
 
+    - name: Display Docker logs
+      run: docker-compose logs
+
     - name: Wait for services to be healthy
       run: |
         while ! docker-compose ps | grep "healthy"; do
