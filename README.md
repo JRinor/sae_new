@@ -14,6 +14,7 @@
 11. [Endpoints de l'API](#endpoints-de-lapi)
 12. [Documentation Swagger](#documentation-swagger)
 13. [Importer les tests API dans Postman](#importer-les-tests-api-dans-postman)
+14. [Tests](#tests)
 
 ## Introduction
 Projet jardins de cocagne pour la S.A.É. Développement avancé (S5.A.01).
@@ -155,4 +156,31 @@ La documentation Swagger de l'API est disponible à l'adresse suivante :
 
 ## Importer les tests API dans Postman
 Un fichier JSON pour importer les tests API dans Postman est disponible :
-- **Test API Postman** : [POSTMAN_API.json](https://github.com/JRinor/sae_new/blob/main/POSTMAN_API.json) .
+- **Test API Postman** : [POSTMAN_API.json](https://github.com/JRinor/sae_new/blob/main/POSTMAN_API.json)
+
+## Tests
+
+Les tests sont configurés pour utiliser Jest et Testing Library. Voici comment ils fonctionnent et comment les exécuter :
+
+### Fonctionnement des tests
+
+- **Tests unitaires** : Ils vérifient le bon fonctionnement des composants individuels et des fonctions.
+- **Tests d'intégration** : Ils vérifient que les différents composants fonctionnent bien ensemble.
+- **Mocking** : Les appels réseau et les dépendances externes sont simulés pour isoler les tests.
+
+### Commandes pour lancer les tests
+
+- Pour lancer tous les tests :
+  ```sh
+  npm run test
+  ```
+
+- Pour lancer les tests en mode surveillance (watch mode) :
+  ```sh
+  npm run test:watch
+  ```
+
+- Pour lancer les tests en mode CI (Continuous Integration) :
+  ```sh
+  npm run test:ci
+  ```

@@ -10,7 +10,7 @@ export async function GET(req) {
 
   try {
     const decoded = jwt.verify(token, 'votre_secret');
-    const { rows } = await db.query('SELECT * FROM AppUser WHERE ID_User = $1', [decoded.id]);  // Utilisation de db pour la requête
+    const { rows } = await db.query('SELECT * FROM AppUser WHERE ID_User = $1', [decoded.id]); 
     return new Response(JSON.stringify(rows[0]), { status: 200 });
   } catch (error) {
     console.error(error);

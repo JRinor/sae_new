@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Map from '../../components/Map';
 import Select from 'react-select'; 
-import Header from '@/components/Header'; // Ensure Header is imported
+import Header from '@/components/Header';
 
 const Tournees = () => {
     const [points, setPoints] = useState([]);

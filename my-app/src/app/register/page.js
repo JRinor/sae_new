@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Map from '../../components/Map';
+import Header from '@/components/Header';
 
 const Tournees = () => {
     const [points, setPoints] = useState([]);
@@ -99,6 +100,7 @@ const Tournees = () => {
 
     return (
         <div className="bg-gray-900 text-white min-h-screen p-4 pt-40">
+            <Header /> {/* Ensure Header is used */}
             <div className="mb-6 flex justify-center space-x-8">
                 <button
                     onClick={() => handleLoadTournee(1)}
@@ -128,7 +130,7 @@ const Tournees = () => {
 
             {!loading && allPoints.length > 0 && (
                 <div className="mt-6">
-                    <label htmlFor="point-select" className="block text-lg font-semibold mb-2">
+                    <label htmlFor="point-select" className="block text-lg font-semibold mb-2 text-white">
                         Points de dépôt disponibles :
                     </label>
                     <select

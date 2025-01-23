@@ -1,7 +1,8 @@
-"use client";
+'use client';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Header from '@/components/Header';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -53,6 +54,7 @@ export default function Login() {
         backgroundImage: "url('/img/image1.jpg')",
       }}
     >
+      <Header /> {/* Ensure Header is used */}
       <div className="bg-white bg-opacity-90 p-8 rounded-lg shadow-lg w-full max-w-md">
         <h1 className="text-3xl font-bold text-center text-green-700 mb-6">
           🌸 Bienvenue 🌸

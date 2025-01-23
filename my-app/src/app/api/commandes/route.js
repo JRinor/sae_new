@@ -1,4 +1,3 @@
-// src/app/api/commandes/route.js
 import pool from '@/lib/db';
 
 /**
@@ -37,7 +36,6 @@ import pool from '@/lib/db';
 export async function POST(req) {
   const { id_abonnement, id_point_de_depot, quantite, date_livraison, statut } = await req.json();
 
-  // Validation simplifiée ou autre code de validation
   const statutsValides = ['en attente', 'en cours', 'livrée', 'annulée'];
   if (statut && !statutsValides.includes(statut)) {
     return new Response(JSON.stringify({ error: 'Statut invalide' }), { status: 400 });

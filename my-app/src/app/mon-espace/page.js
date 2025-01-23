@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Header from '@/components/Header';
 
 export default function MonEspace() {
   const [user, setUser] = useState(null);
@@ -33,10 +34,11 @@ export default function MonEspace() {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Mon Espace</h1>
-      <p>Bienvenue, {user.prenom} {user.nom}!</p>
-      <p>Email: {user.email}</p>
-      <p>Rôle: {user.role}</p>
+      <Header />
+      <h1 className="text-2xl font-bold mb-4 text-white">Mon Espace</h1>
+      <p className="text-white">Bienvenue, {user.prenom} {user.nom}!</p>
+      <p className="text-white">Email: {user.email}</p>
+      <p className="text-white">Rôle: {user.role}</p>
     </div>
   );
 }

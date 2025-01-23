@@ -31,6 +31,7 @@ export async function GET(req) {
   const id = extractTourneeId(req.nextUrl.pathname);
 
   if (!id || isNaN(id) || id <= 0) {
+    console.warn('ID de tournée invalide:', id);
     return NextResponse.json({ error: 'ID de tournée invalide.' }, { status: 400 });
   }
 
@@ -47,11 +48,14 @@ export async function GET(req) {
     );
 
     if (points.length === 0) {
+      console.warn('Aucun point de dépôt trouvé pour cette tournée:', id);
       return NextResponse.json({ error: 'Aucun point de dépôt trouvé pour cette tournée.' }, { status: 404 });
     }
 
+    console.log('Points de dépôt pour la tournée récupérés avec succès:', points);
     return NextResponse.json({ points }, { status: 200 });
   } catch (error) {
+    console.error('Erreur lors de la récupération des points de dépôt pour la tournée :', error);
     return NextResponse.json({ error: 'Erreur serveur.' }, { status: 500 });
   }
 }
@@ -91,6 +95,7 @@ export async function POST(req) {
   const { pointId, ordre } = await req.json();
 
   if (!id || isNaN(id) || id <= 0 || !pointId) {
+    console.warn('ID de tournée ou ID de point invalide:', { id, pointId });
     return NextResponse.json({ error: 'ID de tournée ou ID de point invalide.' }, { status: 400 });
   }
 
@@ -104,9 +109,10 @@ export async function POST(req) {
     `;
 
     await client.query(query, [id, pointId, ordre || 0]);
-
+    console.log('Point de dépôt ajouté à la tournée avec succès:', { id, pointId, ordre });
     return NextResponse.json({ message: 'Point de dépôt ajouté à la tournée.' }, { status: 200 });
   } catch (error) {
+    console.error('Erreur lors de l\'ajout du point de dépôt à la tournée :', error);
     return NextResponse.json({ error: 'Erreur serveur.' }, { status: 500 });
   } finally {
     if (client) {
@@ -148,6 +154,7 @@ export async function DELETE(req) {
   const { pointId } = await req.json();
 
   if (!tourneeId || !pointId) {
+    console.warn('ID de tournée ou de point manquant:', { tourneeId, pointId });
     return NextResponse.json({ error: 'ID de tournée ou de point manquant.' }, { status: 400 });
   }
 
@@ -158,7 +165,11 @@ export async function DELETE(req) {
       'DELETE FROM Tournee_PointDeDepot WHERE ID_Tournee = $1 AND ID_PointDeDepot = $2',
       [tourneeId, pointId]
     );
+    console.log('Point retiré de la tournée avec succès:', { tourneeId, pointId });
     return NextResponse.json({ message: 'Point retiré de la tournée.' }, { status: 200 });
+  } catch (error) {
+    console.error('Erreur lors de la suppression du point de dépôt de la tournée :', error);
+    return NextResponse.json({ error: 'Erreur serveur.' }, { status: 500 });
   } finally {
     if (client) {
       client.release();

@@ -98,6 +98,7 @@ export async function GET() {
     
     return NextResponse.json(result.rows, { status: 200 });
   } catch (error) {
+    console.error('Erreur lors de la récupération des points de dépôt :', error);
     return NextResponse.json({ error: 'Erreur serveur.' }, { status: 500 });
   }
 }

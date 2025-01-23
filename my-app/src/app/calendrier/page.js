@@ -9,6 +9,7 @@ import Event from '@/components/Calendars/Event';
 import Modal from '@/components/Modal';
 import Select from 'react-select';
 import { isSameDay, isSameWeek, isValidDeliveryDate, getNextValidDate } from '@/app/utils/dateUtils';
+import Header from '@/components/Header'; // Ensure Header is imported
 
 const Calendar = () => {
   const [events, setEvents] = useState([]);
@@ -148,6 +149,7 @@ const Calendar = () => {
 
   return (
     <div className="calendar-container pt-20" role="main">
+      <Header /> {/* Ensure Header is used */}
       <div className="space-y-6 bg-gray-800/50 rounded-xl p-6 backdrop-blur-sm shadow-lg mb-6">
         <h2 className="text-2xl font-semibold text-white mb-4">
           Planification des livraisons
@@ -189,7 +191,7 @@ const Calendar = () => {
           className="w-full py-3 px-6 bg-gradient-to-r from-purple-600 
           to-purple-500 rounded-lg transition-all duration-300 
           hover:shadow-purple-500/25 hover:scale-[1.02] 
-          active:scale-[0.98] shadow-lg mt-6"
+          active:scale-[0.98] shadow-lg mt-6 text-white"
         >
           Générer les dates proposées
         </button>
