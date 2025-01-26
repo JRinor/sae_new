@@ -12,29 +12,23 @@ import { isSameDay, isSameWeek, isValidDeliveryDate, getNextValidDate } from '@/
 import Header from '@/components/Header';
 
 const Calendar = () => {
-  // États de base
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
-  // États pour les sélections
   const [selectedTournee, setSelectedTournee] = useState(null);
   const [frequency, setFrequency] = useState(null);
   const [tourneeOptions, setTourneeOptions] = useState([]);
   
-  // États pour le calendrier
   const [openWeeks, setOpenWeeks] = useState([]);
   const [holidays, setHolidays] = useState([]);
   const [specialDays, setSpecialDays] = useState([]);
   
-  // États pour la planification
   const [proposedDates, setProposedDates] = useState([]);
   const [plannedDates, setPlannedDates] = useState(new Set());
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Ajouter l'état manquant pour selectedEvent
   const [selectedEvent, setSelectedEvent] = useState(null);
-  // Ajout de l'état manquant
   const [selectedDates, setSelectedDates] = useState([]);
 
   const frequencyOptions = [
@@ -69,7 +63,6 @@ const Calendar = () => {
       const openWeeksData = await openWeeksRes.json();
       const holidaysData = await holidaysRes.json();
       
-      // S'assurer que les dates sont valides
       const validOpenWeeks = openWeeksData.filter(date => {
         const d = new Date(date);
         return d instanceof Date && !isNaN(d);
@@ -117,14 +110,12 @@ const Calendar = () => {
       if (!response.ok) throw new Error('Erreur lors du chargement des tournées');
       const data = await response.json();
 
-      // Créer les options pour le select
       const options = data.map(tournee => ({
         value: tournee.id_tournee,
         label: `Tournée ${tournee.id_tournee} (${new Date(tournee.jour_livraison).toLocaleDateString('fr-FR')})`
       }));
       setTourneeOptions(options);
 
-      // Formater les événements pour le calendrier
       const formattedEvents = data.flatMap((tournee) => [
         {
           id: tournee.id_tournee,
@@ -170,7 +161,7 @@ const Calendar = () => {
       endDate.setFullYear(endDate.getFullYear() + 1);
 
       let consecutiveFailures = 0;
-      const maxFailures = 10; // Limite de tentatives consécutives
+      const maxFailures = 10;
 
       while (currentDate < endDate && dates.length < 52 && consecutiveFailures < maxFailures) {
         if (canUseDateForDelivery(currentDate)) {
@@ -180,7 +171,6 @@ const Calendar = () => {
           consecutiveFailures++;
         }
         
-        // Avancer à la prochaine date potentielle
         currentDate.setDate(currentDate.getDate() + frequency.value);
       }
 
@@ -234,7 +224,6 @@ const Calendar = () => {
     }
   };
 
-  // Modifier la fonction handleEventClick pour utiliser l'événement correctement
   const handleEventClick = (clickInfo) => {
     if (!clickInfo || !clickInfo.event) return;
     
@@ -249,7 +238,6 @@ const Calendar = () => {
     setSelectedEvent(event);
   };
 
-  // Modifier la fonction handleEventUpdate pour mieux gérer les erreurs
   const handleEventUpdate = async (updatedEvent) => {
     if (!updatedEvent || !updatedEvent.id) {
       console.error('Événement invalide');
@@ -286,7 +274,6 @@ const Calendar = () => {
     }
   };
 
-  // Fonction de fermeture du modal
   const handleModalClose = () => {
     setSelectedEvent(null);
     setError(null);

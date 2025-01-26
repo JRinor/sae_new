@@ -3,6 +3,34 @@ import pool from '@/lib/db';
 /**
  * @swagger
  * /api/commandes:
+ *   get:
+ *     tags: [Commandes]
+ *     summary: Récupérer la liste des commandes
+ *     responses:
+ *       200:
+ *         description: Liste des commandes
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id_commande:
+ *                     type: integer
+ *                   id_abonnement:
+ *                     type: integer
+ *                   id_point_de_depot:
+ *                     type: integer
+ *                   quantite:
+ *                     type: integer
+ *                   date_commande:
+ *                     type: string
+ *                     format: date-time
+ *                   statut:
+ *                     type: string
+ *       500:
+ *         description: Erreur serveur
  *   post:
  *     tags: [Commandes]
  *     summary: Créer une nouvelle commande
@@ -33,6 +61,21 @@ import pool from '@/lib/db';
  *         description: Erreur serveur
  */
 
+export async function GET() {
+  try {
+    const query = `
+      SELECT id_commande, id_abonnement, id_pointdedepot, quantite, date_commande, statut
+      FROM Commande
+      ORDER BY date_commande DESC
+    `;
+    const { rows } = await pool.query(query);
+    return new Response(JSON.stringify(rows), { status: 200 });
+  } catch (error) {
+    console.error('Erreur lors de la récupération des commandes:', error);
+    return new Response(JSON.stringify({ error: 'Erreur serveur.' }), { status: 500 });
+  }
+}
+
 export async function POST(req) {
   const { id_abonnement, id_point_de_depot, quantite, date_livraison, statut } = await req.json();
 
@@ -43,9 +86,9 @@ export async function POST(req) {
 
   try {
     const query = `
-      INSERT INTO commandes (id_abonnement, id_point_de_depot, quantite, date_livraison, statut)
+      INSERT INTO Commande (id_abonnement, id_pointdedepot, quantite, date_livraison, statut)
       VALUES ($1, $2, $3, $4, $5)
-      RETURNING id_commande, id_abonnement, id_point_de_depot, quantite, date_livraison, statut
+      RETURNING id_commande, id_abonnement, id_pointdedepot, quantite, date_commande, statut
     `;
     const values = [id_abonnement, id_point_de_depot, quantite, date_livraison, statut];
 
